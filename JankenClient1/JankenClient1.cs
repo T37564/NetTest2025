@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Xml.Linq;
 
 namespace JankenClient1
 {
@@ -9,15 +10,17 @@ namespace JankenClient1
     {
         public static void Main()
         {
-            //今回送るHello World!
-            string st = "じゃんけんしたい！";
-            Console.WriteLine("JankenClient1");
-            SocketClient(st);
+            Console.WriteLine("あなたのニックネームを入力してください。");
+            string myName = Console.ReadLine();
+            //改行
+            Console.WriteLine();
+
+            SocketClient(myName);
             Console.ReadKey();
         }
 
 
-        public static void SocketClient(string st)
+        public static void SocketClient(string playerName)
         {
             //IPアドレスやポートを設定(自PC、ポート:11000）
             string hostName = Dns.GetHostName();
@@ -42,15 +45,28 @@ namespace JankenClient1
                 Console.WriteLine($"Connect Faild{e.ToString()}");
                 return;
             }
+
+            int nameCount = playerName.Length;
             //Sendで送信している。
-            byte[] msg = Encoding.UTF8.GetBytes(st + "<EOF>");
+            byte[] msg = Encoding.UTF8.GetBytes("Player名" + playerName + " <EOF>" + nameCount.ToString());
             socket.Send(msg);
 
             //Receiveで受信している。
-            byte[] bytes = new byte[1024];
-            int bytesRec = socket.Receive(bytes);
-            string data1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);
+            //誰が勝負を挑んできたかがわかる
+            byte[] bytes1 = new byte[1024];
+            int bytesRec1 = socket.Receive(bytes1);
+            string data1 = Encoding.UTF8.GetString(bytes1, 0, bytesRec1);
             Console.WriteLine(data1);
+
+            //改行
+            Console.WriteLine();
+
+            //Receiveで受信している。
+            //何のゲームをするかを受け取る
+            byte[] bytes2 = new byte[1024];
+            int bytesRec2 = socket.Receive(bytes2);
+            string data2 = Encoding.UTF8.GetString(bytes2, 0, bytesRec2);
+            Console.WriteLine(data2);
 
             // 入力した文字列を送信する
             string userInput = Console.ReadLine();
@@ -59,9 +75,9 @@ namespace JankenClient1
             socket.Send(msg);
 
             //Receiveで受信している。
-            bytes = new byte[1024];
-            bytesRec = socket.Receive(bytes);
-            data1 = Encoding.UTF8.GetString(bytes, 0, bytesRec);
+            byte[] bytes3 = new byte[1024];
+            int bytesRec3 = socket.Receive(bytes3);
+            data1 = Encoding.UTF8.GetString(bytes3, 0, bytesRec3);
             Console.WriteLine(data1);
 
 
@@ -72,4 +88,3 @@ namespace JankenClient1
         }
     }
 }
-
